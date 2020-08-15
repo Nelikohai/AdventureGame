@@ -1,0 +1,16 @@
+Sentence
+It's getting dark.
+Sentence
+You need some place to rest.
+Sentence
+This area is full of unnatural and unusual things.
+Sentence
+And...
+Sentence
+...
+Sentence
+...What were we doing again?
+Sentence
+Oh, we are gonna play a survival game.
+Question
+But in order to proceed, the narrator will need your name.
