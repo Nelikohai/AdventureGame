@@ -14,7 +14,7 @@ textDirectory = rootDirectory + '\\text'
 
 
 TitleFont = pygame.font.SysFont("", 50)
-NormalFont = pygame.font.SysFont("", 30)
+NormalFont = pygame.font.SysFont("", 20)
 
 #Title
 Title = TitleFont.render("Adventure Game", 1, (255, 255, 255))
@@ -31,13 +31,18 @@ txtStart = NormalFont.render("Start", 1, (0, 0, 0))
 txtStartrect = txtStart.get_rect()
 txtStartrect.center = (100, 196)
 #Buttons for Answers
-btnAnswer1 = None
-btnAnswer2 = None
-btnAnswer3 = None
-btnAnswer4 = None
+
 #Other Field Variables
 mouseX, mouseY = pygame.mouse.get_pos()
 questionCount = 0
+
+userDictionary = {
+    "name": "",
+    "class": ""
+
+}
+
+
 currentQuestions = []
 
 pygame.display.update()
@@ -45,35 +50,31 @@ pygame.display.update()
 
 def grabFile(fileName):
 
-    #[Type of sentence (sentence/question)] [The actual words said}
-    dialogue = open(textDirectory + '\\' + fileName + '.txt')
+    #[Type of Sentence (Sentence/Question)][The actual words said]
+    dialogue = open(textDirectory +'\\' + fileName + '.txt')
     #local variables that can be used in either if statement
     myCount = 0
     tempArray1 = []
     
     if fileName == "text":
-        #local variables that can only be used in this if statement
+    #local variables that can only be used in this if statement
         tempArray2 = []
-
+        
         for line in dialogue:
-                tempArray1.insert(myCount, line)
-                tempArray2.insert(myCount, dialogue.readline())
-                myCount = myCount + 1
-
-
-        textArray = [tempArray1, tempArray2]
+            tempArray1.insert(myCount,line)
+            tempArray2.insert(myCount,dialogue.readline())
+            myCount = myCount + 1
+        
+        textArray = [tempArray1,tempArray2]
     elif fileName == "questions":
         #local variable
         #TODO: changeing Delimiters to a comma
-        tempString = ""
-        for line in dialogue:
-            if questionCount == myCount:
-                tempString = dialogue.readline()
-            else:
-                myCount = myCount + 1
-        print(tempString)        
+        tempString = dialogue.readlines()
+        currentAnswers = tempString[questionCount]
+        
+        #print(tempString)
         #We need to turn the string into a delimited array
-        textArray = tempString.split(",")
+        textArray = currentAnswers.split(",")
 
                 
     dialogue.close()
@@ -103,13 +104,49 @@ def createText(text):
     screen.blit(txtBox, txtBoxrect)
 
 #create buttons to click for answering questions
-#def createAnswers(text):
+def createAnswers(text):
     #parameter: Array that has the answers in them
-    #TODO: Create as amny buttons as needed
-    #Create text on top of the buttons
-    #Be able to click the buttons
 
+    #btn Creation
+    global btnAnswer1, btnAnswer2, btnAnswer3, btnAnswer4
+    btnAnswer1 = pygame.draw.rect(screen, (100, 250, 50), (30, 395, 150, 30))
+    btnAnswer2 = pygame.draw.rect(screen, (100, 250, 50), (200, 395, 150, 30))
+    btnAnswer3 = pygame.draw.rect(screen, (100, 250, 50), (30, 445, 150, 30))
+    btnAnswer4 = pygame.draw.rect(screen, (100, 250, 50), (200, 445, 150, 30))
 
+    #txt Creation
+    txtBtn1 = NormalFont.render(text[0], 1, (0, 0, 0))
+    txtBtn1rect = txtBtn1.get_rect()
+    txtBtn1rect.topleft = (40, 405)
+    txtBtn2 = NormalFont.render(text[1], 1, (0, 0, 0))
+    txtBtn2rect = txtBtn2.get_rect()
+    txtBtn2rect.topleft = (210, 405)
+    txtBtn3 = NormalFont.render(text[2], 1, (0, 0, 0))
+    txtBtn3rect = txtBtn3.get_rect()
+    txtBtn3rect.topleft = (40, 455)
+    txtBtn4 = NormalFont.render(text[3], 1, (0, 0, 0))
+    txtBtn4rect = txtBtn4.get_rect()
+    txtBtn4rect.topleft = (210, 455)
+
+    screen.blit(txtBtn1, txtBtn1rect)
+    screen.blit(txtBtn2, txtBtn2rect)
+    screen.blit(txtBtn3, txtBtn3rect)
+    screen.blit(txtBtn4, txtBtn4rect)
+
+def grabKey(currentAnswer):
+    global questionCount
+    #function will grab the key, set value
+    #ONLY IF WE CLICK THE BUTTON
+    #Count is the count of how many times the 'for loop' runs
+    count = 0
+        #if the count is equal to the question count (which is equal to the number of questions)
+    for x in userDictionary.keys():
+        if count == questionCount:
+
+            userDictionary[x] = currentAnswer
+        else:
+            count = count + 1
+    questionCount = questionCount + 1
 
 def gameScreen():
     secondWhile = True
@@ -117,16 +154,33 @@ def gameScreen():
     click = False
     questionCount = 0
     clickcounter = True
+    responses = None
+    global userDictionary
+    character = None
+    background = "cliff.jpg"
+    
     while secondWhile == True:
 
         #makes the background black
         screen.fill((0, 0, 0))
+
+        #For Changing Backgrounds
+        #if(clickCount == 7):
+          #  background = ""
         
-        myImage = pygame.transform.smoothscale(
-            pygame.image.load(imageDirectory + "\\cliff.jpg")
-            , (500, 350)
-        )
+        myImage = pygame.transform.smoothscale(pygame.image.load(imageDirectory + "\\" + background), (500, 350))
+
         screen.blit(myImage,(0, 0))                  #           x   y       width  height
+
+        #Adding Items/Characters on screen
+        #if(clickCount == 7):
+            #character = ""
+
+            #myCharacter = pygame.transform.smoothscale(
+            #pygame.image.load(imageDirectory + "\\" + character), (500, 350))
+
+            #screen.blit(myCharacter,(0, 0)) 
+        
         pygame.draw.rect(screen, (255, 255, 255), (0, 350, 500, 150), 0)
         pygame.draw.rect(screen, (0, 0, 0), (10, 360, 480, 130), 0)
         
@@ -140,34 +194,79 @@ def gameScreen():
           #  createText(myText[1][clickCount])
 
         #if the catergory is question
-        if myText[0][clickCount]=="Question\n":
-            
-                createText(myText[1][clickCount])
-                #create a text box below the normal text
-                #just for the questions
+          #TODO Add Ending
+        try:
+            if myText[0][clickCount]=="Question\n":
                 
-                questionCount = questionCount + 1
-                clickcounter = False
-        #if the category is sentence
-        elif myText[0][clickCount]=="Sentence\n":
-                createText(myText[1][clickCount])
+                    createText(myText[1][clickCount])
+                    #create a text box below the normal text
+                    #just for the questions
+                    responses = grabFile("questions")
+                    createAnswers(responses)
+                    
+                    
+                    clickcounter = False
+            #if the category is sentence
+            elif myText[0][clickCount]=="Sentence\n":
+                    if(myText[1][clickCount].find("NAME") == -1):
+                        createText(myText[1][clickCount])
+                    else:
+                        myText[1][clickCount] = myText[1][clickCount].replace("NAME", userDictionary["name"])
+                        createText(myText[1][clickCount])
 
+                    if(myText[1][clickCount].find("CLASS") == -1):
+                        createText(myText[1][clickCount])
+                    else:
+                        myText[1][clickCount] = myText[1][clickCount].replace("CLASS", userDictionary["class"])
+                        createText(myText[1][clickCount])
+        except IndexError:
+            #Display a message that signals that the game is over,
+            #Set clickcounter to false
+            createText("Something unfortunate happened. Welp, press that X. /GAME RESTART")
+            clickcounter = False
+        
         if clickcounter == True:
 
         #goes to the next index when you click
             if click == True:
                 clickCount = clickCount + 1
+        else:
+            currentAnswer = ""
+            if btnAnswer1.collidepoint((mouseX, mouseY)):
+                if click == True:
+                    #stuff
+                    currentAnswer = responses[0]
+                    clickcounter = True
+                    clickCount = clickCount + 1
+                    grabKey(currentAnswer)
+            elif btnAnswer2.collidepoint((mouseX, mouseY)):
+                if click == True:
+                    #stuff
+                    currentAnswer = responses[1]
+                    clickcounter = True
+                    clickCount = clickCount + 1
+                    grabKey(currentAnswer)
+            elif btnAnswer3.collidepoint((mouseX, mouseY)):
+                if click == True:
+                    #stuff
+                    currentAnswer = responses[2]
+                    clickcounter = True
+                    clickCount = clickCount + 1
+                    grabKey(currentAnswer)
+            elif btnAnswer4.collidepoint((mouseX, mouseY)):
+                if click == True:
+                    #stuff
+                    currentAnswer = responses[3]
+                    clickcounter = True
+                    clickCount = clickCount + 1
+                    grabKey(currentAnswer)
 
+            
 
         #where to stop the code for gameplay
         click = False
 
-
         rightClick = False
-
-
-
-
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -215,10 +314,6 @@ def titleScreen():
                 #do something
                 firstWhile = False
                 gameScreen()
-
-
-
-
 
         click = False
 
